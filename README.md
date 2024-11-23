@@ -44,5 +44,5 @@ $ npm run start:dev
 # Dependencies
 
 ```bash
-npm install @nestjs/typeorm typeorm pg
+npm install @nestjs/typeorm typeorm pg openai
 ```
