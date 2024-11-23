@@ -40,3 +40,9 @@ $ npm run build
 # In this sample
 $ npm run start:dev
 ```
+
+# Dependencies
+
+```bash
+npm install @nestjs/typeorm typeorm pg
+```
