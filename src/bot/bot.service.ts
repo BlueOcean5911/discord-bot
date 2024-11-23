@@ -2,17 +2,23 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Client, GatewayIntentBits } from "discord.js";
+import OpenAI from "openai";
 import { Bot } from "./bot.entity";
 
 @Injectable()
 export class BotService {
   private readonly logger = new Logger(BotService.name);
   private activeClients: Map<string, Client> = new Map();
+  private openai;
 
   constructor(
     @InjectRepository(Bot)
     private botRepository: Repository<Bot>
-  ) {}
+  ) {
+    this.openai = new OpenAI({
+      apiKey: process.env["OPENAI_API_KEY"],
+    });
+  }
 
   async registerBot(userId: string, botToken: string, botName: string) {
     const bot = this.botRepository.create({
@@ -43,7 +49,19 @@ export class BotService {
         this.logger.log(
           `Bot ${client.user.tag} received message: ${message.content}`
         );
-        await message.reply("Message processed successfully");
+        try {
+          const response = await this.openai.chat.completions.create({
+            messages: [{ role: "user", content: message.content }],
+            model: "gpt-4o",
+          });
+          await message.reply(response.choices[0].message.content);
+        } catch (error) {
+          console.log(error);
+          this.logger.error("OpenAI API error:", error);
+          await message.reply(
+            "I'm processing too many requests right now. Please try again in a moment."
+          );
+        }
       }
     });
 
