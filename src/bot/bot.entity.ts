@@ -19,6 +19,9 @@ export class Bot {
   @Column()
   botName: string;
 
+  @Column({ default: "" })
+  botDescription: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
