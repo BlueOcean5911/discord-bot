@@ -1,30 +1,26 @@
-import { DiscordModule } from "@discord-nestjs/core";
 import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { DiscordModule } from "@discord-nestjs/core";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GatewayIntentBits } from "discord.js";
-
-import { BotGateway } from "./bot/bot.gateway";
+import { BotModule } from "./bot/bot.module";
+import { Bot } from "./bot/bot.entity";
+import { BotService } from "./bot/bot.service";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    DiscordModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        token: configService.get("TOKEN"),
-        discordClientOptions: {
-          intents: [
-            GatewayIntentBits.Guilds,
-            GatewayIntentBits.GuildMessages,
-            // You must allow message content for your application in discord developers
-            // https://support-dev.discord.com/hc/en-us/articles/4404772028055
-            GatewayIntentBits.MessageContent,
-          ],
-        },
-      }),
-      inject: [ConfigService],
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [Bot],
+      synchronize: true,
     }),
+    BotModule,
   ],
-  providers: [BotGateway],
 })
 export class AppModule {}
