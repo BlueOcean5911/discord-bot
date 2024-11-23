@@ -15,7 +15,7 @@
 
 ## Description
 
-Sample with events
+This is a discord bot with nestjs to provide a chat bot for discord.
 
 ## Installation
 
